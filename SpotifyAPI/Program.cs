@@ -8,17 +8,28 @@ namespace SpotifyApi
     {
         static void Main(string[] args)
         {
+            // initialise server class
             SQLServer server = new SQLServer();
+
+            // connect to databse server
             server.openConnection();
+
+            // add playlists to table
             server.addPlaylistToTable("Americannn", "5ybgdI5zfh6NcMDQp5NHVk");
             server.addPlaylistToTable("Bangerzzz", "0quqcsWCf5xt8z76kMFMzf");
+
+            // get data from table and display
             List<object> track = server.getHighestOrLowest("Americannn", "Popularity", true);
             Console.WriteLine("Most Popular Song in Americannn Playlist: {0} by {1}", track[1], track[2]);
             List<object> t = server.getHighestOrLowest("", "ReleaseDate", false);
             Console.WriteLine("Latest Song in All Playlists: {0} by {1}", t[1], t[2]);
+
+            // close the server connection
             server.closeConnection();
         }
     }
+
+    // ------ CLASSES USED FOR INTERPRETING JSON RESPONSE FROM API ------
 
     [DataContract]
     class spotifyToken
