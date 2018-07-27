@@ -8,24 +8,6 @@ namespace SpotifyApi
     {
         static void Main(string[] args)
         {
-            SpotifyGetDataAPI spotify = new SpotifyGetDataAPI();
-
-            spotifyPlaylist americannn = spotify.GetPlaylist("5ybgdI5zfh6NcMDQp5NHVk");
-            spotifyTrack champions = spotify.GetTrack("3eZGNBvKkExXp8q5FAyM8y");
-            
-            Console.WriteLine("Americannn Playlist:");
-            foreach (songInfo t in americannn.items)
-            {
-                Console.WriteLine("Title: {0}\tArtist: {1}\t Album: {2}", t.track.name, t.track.artists[0].name, t.track.album.name);
-            }
-            Console.WriteLine("\nChampions Track Details:");
-            List<string> artists = new List<string>();
-            foreach (artistInfo artist in champions.artists)
-            {
-                artists.Add(artist.name);
-            }
-            Console.WriteLine("Artists: {0}\nAlbum: {1}\nExplicit: {2}\nRating: {3}\nDuration: {4}", String.Join(", ", artists), champions.album.name, champions.@explicit, champions.popularity, TimeSpan.FromMilliseconds(champions.duration_ms));
-            
             SQLServer server = new SQLServer();
             server.openConnection();
             server.addPlaylistToTable("Americannn", "5ybgdI5zfh6NcMDQp5NHVk");
