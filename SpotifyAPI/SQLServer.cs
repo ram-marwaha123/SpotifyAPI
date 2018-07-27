@@ -35,9 +35,22 @@ namespace SpotifyApi
             }
         }
 
+        public void createPlaylistTable(string table_name)
+        {
+            string cmd = "EXEC dbo.newPlaylistTable @name = " + table_name;
+            SqlCommand command = new SqlCommand(cmd, connection);
+            try
+            {
+                command.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
         public void addPlaylistToTable(string table_name, string playlistId)
         {
-            table_name = "dbo." + table_name;
             SpotifyGetDataAPI p = new SpotifyGetDataAPI();
             spotifyPlaylist playlist = p.GetPlaylist(playlistId);
             foreach (songInfo song in playlist.items)
@@ -54,7 +67,9 @@ namespace SpotifyApi
                 int @explicit = (t.@explicit == true) ? 1 : 0;
                 TimeSpan duration = TimeSpan.FromMilliseconds(t.duration_ms);
                 int popularity = t.popularity;
-                string c = String.Format("INSERT INTO {0} (Title, Artist, Album, Explicit, Duration, Popularity) VALUES ('{1}', '{2}', '{3}', {4}, '{5}', {6});", table_name, title, artistString, album, @explicit, duration, popularity);
+                string trackId = t.id.Replace("'", "''");
+                string release_date = t.album.release_date;
+                string c = String.Format("EXEC dbo.insertPlaylistData @Playlist = '{0}', @Title = '{1}', @Artist = '{2}', @Album = '{3}', @Explicit = {4}, @Duration = '{5}', @Popularity = {6}, @Release_Date = '{7}', @ID = '{8}'", table_name, title, artistString, album, @explicit, duration, popularity, release_date, trackId);
                 SqlCommand command = new SqlCommand(c, connection);
                 try
                 {
@@ -67,11 +82,11 @@ namespace SpotifyApi
             }
         }
 
-        public List<object> getHighestOrLowest(string table_name, string column_name, bool descending)
+        public List<object> getHighestOrLowest(string playlist_name, string column_name, bool descending)
         {
             List<object> trackData = new List<object>();
             string asc_or_desc = (descending) ? "DESC" : "ASC";
-            string cmd = String.Format("EXEC dbo.sortTable @table_name = '{0}', @column_name = '{1}', @asc_or_desc = '{2}'", table_name, column_name, asc_or_desc);
+            string cmd = String.Format("EXEC dbo.sortTable @playlist_name = '{0}', @column_name = '{1}', @asc_or_desc = '{2}'", playlist_name, column_name, asc_or_desc);
             SqlCommand command = new SqlCommand(cmd, connection);
             SqlDataReader reader = null;
             try
@@ -90,6 +105,7 @@ namespace SpotifyApi
                     trackData.Add(reader[col]);
                 }
             }
+            reader.Close();
             return trackData;
         }
     }
